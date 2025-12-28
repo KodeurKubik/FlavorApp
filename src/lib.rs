@@ -16,14 +16,28 @@ pub fn run() {
         .plugin(tauri_plugin_http::init())
         .plugin(tauri_plugin_opener::init())
         .setup(|app| {
-            WebviewWindowBuilder::new(
-                app,
-                "main",
-                WebviewUrl::External("https://flavortown.hackclub.com".parse().unwrap()),
-            )
-            .title("FlavorApp")
-            .inner_size(1080.0, 720.0)
-            .build()?;
+            #[cfg(not(target_os = "android"))]
+            {
+                WebviewWindowBuilder::new(
+                    app,
+                    "main",
+                    WebviewUrl::External("https://flavortown.hackclub.com".parse().unwrap()),
+                )
+                .title("FlavorApp")
+                .title_bar_style(tauri::TitleBarStyle::Transparent)
+                .inner_size(1080.0, 720.0)
+                .build()?;
+            }
+
+            #[cfg(target_os = "android")]
+            {
+                WebviewWindowBuilder::new(
+                    app,
+                    "main",
+                    WebviewUrl::External("https://flavortown.hackclub.com".parse().unwrap()),
+                )
+                .build()?;
+            }
 
             std::thread::spawn(|| {
                 std::thread::sleep(std::time::Duration::from_secs(60));
