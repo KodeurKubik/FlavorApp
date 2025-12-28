@@ -1,14 +1,4 @@
-use tauri::{WebviewUrl, WebviewWindowBuilder};
-
-fn send_extension_ping() -> Result<(), String> {
-    let client = reqwest::blocking::Client::new();
-    client
-        .get("https://flavortown.hackclub.com/")
-        .header("X-Flavortown-Ext-2793", "true")
-        .send()
-        .map_err(|e| e.to_string())?;
-    Ok(())
-}
+use tauri::{Manager, WebviewUrl, WebviewWindowBuilder};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -39,9 +29,14 @@ pub fn run() {
                 .build()?;
             }
 
-            std::thread::spawn(|| {
+            let window = app
+                .get_webview_window("main")
+                .expect("main window not found");
+            
+            std::thread::spawn(move || loop {
                 std::thread::sleep(std::time::Duration::from_secs(60));
-                send_extension_ping().ok();
+
+                let _ = window.eval("fetch('https://flavortown.hackclub.com/projects', { headers: { 'X-Flavortown-Ext-2793': true } })");
             });
 
             Ok(())
