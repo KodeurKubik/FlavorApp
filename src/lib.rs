@@ -14,7 +14,6 @@ pub fn run() {
                     WebviewUrl::External("https://flavortown.hackclub.com".parse().unwrap()),
                 )
                 .title("FlavorApp")
-                .title_bar_style(tauri::TitleBarStyle::Transparent)
                 .inner_size(1080.0, 720.0)
                 .build()?;
             }
@@ -34,9 +33,8 @@ pub fn run() {
                 .expect("main window not found");
             
             std::thread::spawn(move || loop {
-                std::thread::sleep(std::time::Duration::from_secs(60));
-
-                let _ = window.eval("fetch('https://flavortown.hackclub.com/projects', { headers: { 'X-Flavortown-Ext-2793': true } })");
+                std::thread::sleep(std::time::Duration::from_secs(120));
+                let _ = window.eval("fetch('https://flavortown.hackclub.com/projects', { headers: { 'X-Flavortown-Ext-2793': true } });");
             });
 
             Ok(())
