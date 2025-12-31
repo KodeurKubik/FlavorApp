@@ -1,10 +1,11 @@
 #[cfg(desktop)]
 pub async fn update(app: tauri::AppHandle) -> tauri_plugin_updater::Result<()> {
-    use crate::cmds;
     use tauri_plugin_updater::UpdaterExt;
 
     log::info!("Checking for updates...");
     if let Some(update) = app.updater()?.check().await? {
+        use tauri_plugin_dialog::{DialogExt, MessageDialogButtons};
+
         log::info!(
             "Update found: {} (current: {})",
             update.version,
@@ -26,15 +27,20 @@ pub async fn update(app: tauri::AppHandle) -> tauri_plugin_updater::Result<()> {
 
         log::info!("update installed");
 
-        if let Err(o) = cmds::notify(
-            app,
-            "Update downloaded and installed!".to_string(),
-            Some("Please restart the app for the update to apply".to_string()),
-        )
-        .await
-        {
-            log::error!("Could not notify: {o:?}");
-        }
+        app.dialog()
+            .message(format!(
+                "The update {} has been downloaded and is ready to install. Please restart to apply the update. You are currently on version {}",
+                update.version, update.current_version
+            ))
+            .title("Update Ready!")
+            .buttons(MessageDialogButtons::OkCancelCustom(
+                "Restart Now".to_string(),
+                "Later".to_string(),
+            ))
+            .show(move |result| match result {
+                true => app.restart(),
+                false => {}
+            });
     }
 
     Ok(())
