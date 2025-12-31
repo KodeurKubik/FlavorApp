@@ -1,10 +1,24 @@
-use tauri::{Manager, WebviewUrl, WebviewWindowBuilder};
+use tauri::{WebviewUrl, WebviewWindowBuilder};
+mod cmds;
+mod inject;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    tauri::Builder::default()
+    let mut app = tauri::Builder::default()
+        .plugin(tauri_plugin_fs::init())
+        .plugin(inject::init())
+        .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_http::init())
-        .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_opener::init());
+
+    #[cfg(not(target_os = "android"))]
+    {
+        app = app
+            .plugin(tauri_plugin_window_state::Builder::new().build())
+            .plugin(tauri_plugin_updater::Builder::new().build());
+    }
+
+    app = app
         .setup(|app| {
             #[cfg(not(target_os = "android"))]
             {
@@ -14,7 +28,9 @@ pub fn run() {
                     WebviewUrl::External("https://flavortown.hackclub.com".parse().unwrap()),
                 )
                 .title("FlavorApp")
+                .devtools(true)
                 .inner_size(1080.0, 720.0)
+                .visible(false)
                 .build()?;
             }
 
@@ -28,17 +44,21 @@ pub fn run() {
                 .build()?;
             }
 
-            let window = app
-                .get_webview_window("main")
-                .expect("main window not found");
-            
-            std::thread::spawn(move || loop {
-                std::thread::sleep(std::time::Duration::from_secs(120));
-                let _ = window.eval("fetch('https://flavortown.hackclub.com/projects', { headers: { 'X-Flavortown-Ext-2793': true } });");
-            });
+            #[cfg(all(dev, not(target_os = "android")))]
+            {
+                use tauri::Manager;
+
+                let window = app
+                    .get_webview_window("main")
+                    .expect("main window not found");
+
+                window.open_devtools();
+            }
 
             Ok(())
         })
-        .run(tauri::generate_context!())
+        .invoke_handler(tauri::generate_handler![cmds::notify]);
+
+    app.run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

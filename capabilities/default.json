@@ -6,6 +6,8 @@
   "permissions": [
     "core:default",
     "opener:default",
+    "fs:default",
+    "notification:default",
     {
       "identifier": "http:default",
       "allow": [

@@ -6,9 +6,11 @@
   "app": {
     "windows": [],
     "security": {
-      "csp": null
+      "csp": "default-src 'self' ipc:; script-src 'self' 'unsafe-inline' https://hackclub.com https://*.hackclub.com https://plausible.io ipc:; style-src 'self' 'unsafe-inline' https://hackclub.com https://*.hackclub.com; img-src 'self' https: http: data:; font-src 'self' https:; connect-src ipc: https: http: 'self' https://hackclub.com https://*.hackclub.com https://plausible.io;",
+      "capabilities": ["default", "desktop-capability", "remote-capability"]
     },
-    "macOSPrivateApi": true
+    "macOSPrivateApi": true,
+    "withGlobalTauri": true
   },
   "bundle": {
     "active": true,
@@ -19,9 +21,18 @@
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ]
+    ],
+    "createUpdaterArtifacts": true
   },
   "build": {
     "removeUnusedCommands": true
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDlFMjg4NTVBRjMzNjAzQzAKUldUQUF6YnpXb1VvbmtBL0E4MnEza1hqb2RDbityK2tqWktmdnF0MU5hT3lnY1BNaytWNnRhTnAK",
+      "endpoints": [
+        "https://github.com/KodeurKubik/FlavorApp/releases/latest/download/latest.json"
+      ]
+    }
   }
 }
