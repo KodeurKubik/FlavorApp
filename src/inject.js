@@ -129,8 +129,9 @@ function makeSettings() {
   }
 }
 
-function init() {
+async function init() {
   console.log("FlavorApp script injected!");
+  window.__TAURI__.log.attachConsole();
 
   if (!document.body.classList.contains("signed-in"))
     return console.log("Not running FlavorApp because not logged in");

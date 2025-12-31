@@ -1,8 +1,5 @@
 #!/bin/bash
 
-rm -r ./build/out/
-mkdir ./build/out/
-
 none=0
 while [[ "$#" -gt 0 ]]; do
     case $1 in
@@ -17,6 +14,11 @@ done
 
 export TAURI_SIGNING_PRIVATE_KEY="$(pwd)/keys/flavorapp.key"
 export TAURI_SIGNING_PRIVATE_KEY_PASSWORD=$(<"$(pwd)/keys/password.txt")
+
+if [[ $none == 0 ]]; then
+    rm -r ./build/out/
+    mkdir ./build/out/
+fi
 
 if [[ $none == 0 ]] || [[ $mac == 1 ]]; then
     ./build/mac.sh

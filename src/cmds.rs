@@ -6,6 +6,8 @@ pub async fn notify(
     title: String,
     description: Option<String>,
 ) -> Result<(), String> {
+    log::info!("Sending notification {title}");
+
     // Permission Check
     let permission_state = app_handle
         .notification()
@@ -14,7 +16,7 @@ pub async fn notify(
 
     // Request Permission
     if permission_state != tauri_plugin_notification::PermissionState::Granted {
-        println!("Requesting notification permission...");
+        log::info!("Requesting notification permission...");
         app_handle
             .notification()
             .request_permission()

@@ -1,17 +1,26 @@
 use tauri::{WebviewUrl, WebviewWindowBuilder};
 mod cmds;
 mod inject;
+mod utils;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let mut app = tauri::Builder::default()
+        .plugin(
+            tauri_plugin_log::Builder::new()
+                .level(tauri_plugin_log::log::LevelFilter::Info)
+                .target(tauri_plugin_log::Target::new(
+                    tauri_plugin_log::TargetKind::Webview,
+                ))
+                .build(),
+        )
         .plugin(tauri_plugin_fs::init())
         .plugin(inject::init())
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_http::init())
         .plugin(tauri_plugin_opener::init());
 
-    #[cfg(not(target_os = "android"))]
+    #[cfg(desktop)]
     {
         app = app
             .plugin(tauri_plugin_window_state::Builder::new().build())
@@ -20,7 +29,7 @@ pub fn run() {
 
     app = app
         .setup(|app| {
-            #[cfg(not(target_os = "android"))]
+            #[cfg(desktop)]
             {
                 WebviewWindowBuilder::new(
                     app,
@@ -32,6 +41,13 @@ pub fn run() {
                 .inner_size(1080.0, 720.0)
                 .visible(false)
                 .build()?;
+
+                let handle = app.handle().clone();
+                tauri::async_runtime::spawn(async move {
+                    if let Err(uperr) = utils::update(handle).await {
+                        log::error!("Failed to update: {:?}", uperr);
+                    }
+                });
             }
 
             #[cfg(target_os = "android")]
@@ -44,7 +60,7 @@ pub fn run() {
                 .build()?;
             }
 
-            #[cfg(all(dev, not(target_os = "android")))]
+            #[cfg(all(dev, desktop))]
             {
                 use tauri::Manager;
 

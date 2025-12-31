@@ -15,7 +15,7 @@ pub fn init<R: Runtime>() -> TauriPlugin<R> {
                     return true;
                 }
 
-                println!("Opening external URL in browser: {}", url);
+                log::info!("Opening external URL in browser: {}", url);
                 let _ = window.opener().open_url(url.as_str(), None::<&str>);
                 return false;
             }
