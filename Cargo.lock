@@ -1178,7 +1178,7 @@ dependencies = [
 
 [[package]]
 name = "flavorapp"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
  "log",
  "serde",
@@ -1193,6 +1193,7 @@ dependencies = [
  "tauri-plugin-opener",
  "tauri-plugin-updater",
  "tauri-plugin-window-state",
+ "tokio",
 ]
 
 [[package]]

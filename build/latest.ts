@@ -1,11 +1,25 @@
 import { existsSync, readFileSync, rmSync, writeFileSync } from "fs";
+import { semver } from "bun";
 
 const VERSION = readFileSync("./Cargo.toml", "utf-8")
   .split("version = ")[1]
   .split("\n")[0]
   .replaceAll('"', "");
-
 console.log(`Parsed version ${VERSION}`);
+
+const LATESTJSON = await (
+  await fetch(
+    "https://github.com/KodeurKubik/FlavorApp/releases/latest/download/latest.json"
+  )
+).json();
+console.log(`Parsed latest version ${LATESTJSON.version}`);
+
+const SEMVER = semver.order(VERSION, LATESTJSON.version);
+
+if (SEMVER != 1) {
+  console.log("Local version is less or equal to latest online version");
+  process.exit(0);
+}
 
 const URL_PREFIX = `https://github.com/KodeurKubik/FlavorApp/releases/download/v${VERSION}`;
 

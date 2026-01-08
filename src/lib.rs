@@ -44,9 +44,13 @@ pub fn run() {
                 .build()?;
 
                 let handle = app.handle().clone();
+                // check updates every 6 hours and on start
                 tauri::async_runtime::spawn(async move {
-                    if let Err(uperr) = utils::update(handle).await {
-                        log::error!("Failed to update: {:?}", uperr);
+                    loop {
+                        if let Err(uperr) = utils::update(handle.clone()).await {
+                            log::error!("Failed to update: {:?}", uperr);
+                        }
+                        tokio::time::sleep(tokio::time::Duration::from_secs(6 * 60 * 60)).await;
                     }
                 });
             }
