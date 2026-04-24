@@ -54,17 +54,18 @@ function makeSettings() {
 
   // API key text
   document.querySelector(
-    "#settings-modal > div.api-key-section > small"
-  ).innerHTML += `<br />This key is used by FlavorApp if the settings are turned on.`;
+    "#settings-modal > div.api-key-section > small",
+  ).innerHTML +=
+    `<br />This key is used by FlavorApp if the settings are turned on.`;
 
   function getFormHTML(id, title, description, checked) {
     return `<div class="settings-form__field">
         <label class="settings-form__checkbox">
             <input type="checkbox" name="${id}" id="${id}" value=${
-      checked ? "1" : "0"
-    } ${
-      checked ? 'checked="checked"' : ""
-    } onchange="localStorage.setItem('${id}', this.checked)">
+              checked ? "1" : "0"
+            } ${
+              checked ? 'checked="checked"' : ""
+            } onchange="localStorage.setItem('${id}', this.checked)">
             <span>${title}</span>
         </label>
         <small class="settings-form__hint">${description}</small>
@@ -74,7 +75,7 @@ function makeSettings() {
   // notification when can buy
   {
     let flavorapp_settings_canbuy = localStorage.getItem(
-      "flavorapp_settings_canbuy"
+      "flavorapp_settings_canbuy",
     );
     if (!flavorapp_settings_canbuy) {
       localStorage.setItem("flavorapp_settings_canbuy", true);
@@ -86,7 +87,7 @@ function makeSettings() {
       "flavorapp_settings_canbuy",
       "Notify when ready to order",
       "Receive a notification when you reach one of your cookies goal from the shop",
-      flavorapp_settings_canbuy
+      flavorapp_settings_canbuy,
     );
     settings.insertBefore(canBuy, firstItem);
 
@@ -95,36 +96,36 @@ function makeSettings() {
       () => {
         if (localStorage.getItem("flavorapp_settings_canbuy") != "true") return;
         const wishlist = JSON.parse(
-          localStorage.getItem("shop_wishlist") || "{}"
+          localStorage.getItem("shop_wishlist") || "{}",
         );
         if (!wishlist) return;
 
         const COOKIE_COUNT = get("USER").cookies;
         let NOTIFIED = JSON.parse(
-          localStorage.getItem("shop_wishlist_notified") || "[]"
+          localStorage.getItem("shop_wishlist_notified") || "[]",
         );
 
         // clean up NOTIFIED list
         NOTIFIED = NOTIFIED.filter((n) => wishlist[n]);
 
         let ready = Object.values(wishlist).filter(
-          (el) => el.price <= COOKIE_COUNT && !NOTIFIED.includes(el.id)
+          (el) => el.price <= COOKIE_COUNT && !NOTIFIED.includes(el.id),
         );
 
         ready.forEach((yay) => {
           notify(
             `${yay.name} available!`,
-            `You can now purchase ${yay.name} for 🍪 ${yay.price} in the shop!`
+            `You can now purchase ${yay.name} for 🍪 ${yay.price} in the shop!`,
           );
           NOTIFIED.push(yay.id);
         });
 
         localStorage.setItem(
           "shop_wishlist_notified",
-          JSON.stringify(NOTIFIED)
+          JSON.stringify(NOTIFIED),
         );
       },
-      3 * 60 * 1000
+      3 * 60 * 1000,
     );
   }
 }
@@ -138,13 +139,15 @@ async function init() {
 
   // CONSTANTS
   const API_KEY = document
-    .querySelector("#settings-modal > div > div > div")
+    .querySelector(
+      "#settings-modal > div.api-key-section > turbo-frame > div > div",
+    )
     .innerHTML.trim();
   set("API_KEY", API_KEY);
 
   const USERID = document
     .querySelector(
-      "body > aside > div.sidebar__user > div > div.sidebar__user-details > a"
+      "body > aside > div.sidebar__user > div > div.sidebar__user-details > a",
     )
     .href.split("users/")[1];
   set("USERID", USERID);
@@ -164,11 +167,11 @@ async function init() {
         set("USER", await api(`/api/v1/users/${get("USERID")}`));
       },
       3 * 60 * 1000,
-      true
+      true,
     );
   } else {
     console.error(
-      "Element #flavorapp present, please reload the page if FlavorApp isn't working as expected."
+      "Element #flavorapp present, please reload the page if FlavorApp isn't working as expected.",
     );
   }
 }
